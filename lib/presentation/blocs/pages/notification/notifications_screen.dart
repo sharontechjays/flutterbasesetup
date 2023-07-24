@@ -59,7 +59,7 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
       create: (context) => _notificationsBloc,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Notifications'),
+          title: const Text('Notifications '),
         ),
         body: RefreshIndicator(
           onRefresh: _onRefresh,
