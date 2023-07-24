@@ -5,7 +5,6 @@ import '../../notifications/notification_bloc.dart';
 import '../../notifications/notification_event.dart';
 import '../../notifications/notification_state.dart';
 
-
 class MyNotificationsScreen extends StatefulWidget {
   const MyNotificationsScreen({Key? key}) : super(key: key);
 
@@ -66,8 +65,7 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
           onRefresh: _onRefresh,
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
-              if (state is NotificationsLoading &&
-                  _notificationsBloc.notifications.isEmpty) {
+              if (state is NotificationsLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is NotificationsLoaded) {
                 return ListView.separated(
@@ -80,6 +78,8 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
                       return ListTile(
                         title: Text("$notification>>$index"),
                       );
+                    } else if (state is NotificationEmpty) {
+                      return const Center(child: Text("Notification is Empty"));
                     } else {
                       return const Center(child: CircularProgressIndicator());
                     }
