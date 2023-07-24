@@ -1,8 +1,8 @@
 abstract class NotificationsEvent {}
 
 class FetchNotifications extends NotificationsEvent {
-  final int page;
+  final int offset;
   final int limit;
 
-  FetchNotifications(this.page, this.limit);
+  FetchNotifications(this.offset, this.limit);
 }

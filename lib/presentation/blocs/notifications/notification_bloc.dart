@@ -8,41 +8,36 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   }
 
   List<String> notifications = [];
-  int page = 0;
-  int limit =5;
+  int offset = 0;
+  int limit = 5;
   bool isNextLink = true;
 
   void _onFetchNotifications(
-      FetchNotifications event,
-      Emitter<NotificationsState> emit,
-      ) async {
+    FetchNotifications event,
+    Emitter<NotificationsState> emit,
+  ) async {
     if (isNextLink) {
       try {
         emit(NotificationsLoading());
 
-        final newNotifications = await getNotifications(event.page, event.limit);
+        final newNotifications =
+            await getNotifications(event.offset, event.limit);
 
         if (newNotifications.isEmpty) {
           isNextLink = false;
+        } else if (notifications.length >= 30) {
+          isNextLink = false;
         } else {
-          page = event.page;
+          offset = event.offset;
           limit = event.limit;
           notifications.addAll(newNotifications);
-
-          if (notifications.length > 30) {
-            notifications = notifications.sublist(0, 30);
-            isNextLink = false;
-          }
-
-          emit(NotificationsLoaded(notifications));
         }
+        emit(NotificationsLoaded(notifications));
       } catch (e) {
         emit(const NotificationsError('Failed to fetch notifications.'));
       }
     }
   }
-
-
 
   Future<List<String>> getNotifications(int page, int limit) async {
     return [
