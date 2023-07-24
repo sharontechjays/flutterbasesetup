@@ -43,6 +43,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   }
 
 
+
   Future<List<String>> getNotifications(int page, int limit) async {
     return [
       "String 1",
