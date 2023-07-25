@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../notifications/notification_bloc.dart';
-import '../../notifications/notification_event.dart';
-import '../../notifications/notification_state.dart';
+import '../../blocs/notifications/notification_bloc.dart';
+import '../../blocs/notifications/notification_event.dart';
+import '../../blocs/notifications/notification_state.dart';
 
 class MyNotificationsScreen extends StatefulWidget {
   const MyNotificationsScreen({Key? key}) : super(key: key);
@@ -12,13 +11,19 @@ class MyNotificationsScreen extends StatefulWidget {
   _MyNotificationsScreenState createState() => _MyNotificationsScreenState();
 }
 
-class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
+class _MyNotificationsScreenState extends State<MyNotificationsScreen>
+    with WidgetsBindingObserver {
   late ScrollController _scrollController;
   late NotificationsBloc _notificationsBloc;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _init();
+  }
+
+  _init() {
     _scrollController = ScrollController();
     _notificationsBloc = NotificationsBloc();
     _scrollController.addListener(_onScroll);
@@ -28,9 +33,17 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _notificationsBloc.close();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(final AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _onRefresh();
+    }
   }
 
   void _onScroll() {
@@ -59,13 +72,14 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
       create: (context) => _notificationsBloc,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Notifications '),
+          title: const Text('Notifications'),
         ),
         body: RefreshIndicator(
           onRefresh: _onRefresh,
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
-              if (state is NotificationsLoading) {
+              if (state is NotificationsLoading &&
+                  _notificationsBloc.isNextLink) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is NotificationsLoaded) {
                 return ListView.separated(
@@ -78,15 +92,18 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen> {
                       return ListTile(
                         title: Text("$notification>>$index"),
                       );
-                    } else if (state is NotificationEmpty) {
-                      return const Center(child: Text("Notification is Empty"));
+                    } else if (_notificationsBloc.offset == 0 &&
+                        state.notifications.isEmpty) {
+                      return const Center(child: Text(""));
                     } else {
-                      return const Center(child: CircularProgressIndicator());
+                      return const SizedBox();
                     }
                   },
                   separatorBuilder: (context, index) => const Divider(),
                 );
               } else if (state is NotificationsError) {
+                return Center(child: Text(state.message));
+              } else if (state is NotificationEmpty) {
                 return Center(child: Text(state.message));
               } else {
                 return Container();
