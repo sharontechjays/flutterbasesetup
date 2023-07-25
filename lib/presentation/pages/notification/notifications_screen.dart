@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../utils/endless_recycler.dart';
+import '../../../utils/endless_recycler_impl.dart';
 import '../../blocs/notifications/notification_bloc.dart';
 import '../../blocs/notifications/notification_event.dart';
 import '../../blocs/notifications/notification_state.dart';
@@ -15,6 +17,7 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
     with WidgetsBindingObserver {
   late ScrollController _scrollController;
   late NotificationsBloc _notificationsBloc;
+  late EndlessScrollListenerImpl _endlessScrollListener;
 
   @override
   void initState() {
@@ -25,7 +28,9 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
 
   _init() {
     _scrollController = ScrollController();
+    _endlessScrollListener = EndlessScrollListenerImpl(_scrollController);
     _notificationsBloc = NotificationsBloc();
+    // Initialize the EndlessScrollListener
     _scrollController.addListener(_onScroll);
     _notificationsBloc.add(FetchNotifications(
         _notificationsBloc.offset, _notificationsBloc.limit));
@@ -47,6 +52,7 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
   }
 
   void _onScroll() {
+    _endlessScrollListener.onScrolled();
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       if (_notificationsBloc.isNextLink) {
@@ -92,6 +98,9 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
                       return ListTile(
                         title: Text("$notification>>$index"),
                       );
+                    } else if (state is NotificationsLoading) {
+                      // Add this check to display loading indicator
+                      return Center(child: CircularProgressIndicator());
                     } else if (_notificationsBloc.offset == 0 &&
                         state.notifications.isEmpty) {
                       return const SizedBox();
