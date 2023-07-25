@@ -94,7 +94,7 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
                       );
                     } else if (_notificationsBloc.offset == 0 &&
                         state.notifications.isEmpty) {
-                      return const Center(child: Text(""));
+                      return const SizedBox();
                     } else {
                       return const SizedBox();
                     }
