@@ -30,7 +30,6 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
     _scrollController = ScrollController();
     _endlessScrollListener = EndlessScrollListenerImpl(_scrollController);
     _notificationsBloc = NotificationsBloc();
-    // Initialize the EndlessScrollListener
     _scrollController.addListener(_onScroll);
     _notificationsBloc.add(FetchNotifications(
         _notificationsBloc.offset, _notificationsBloc.limit));
@@ -84,32 +83,10 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
           onRefresh: _onRefresh,
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
-              if (state is NotificationsLoading &&
-                  _notificationsBloc.isNextLink) {
+              if (state is NotificationsLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is NotificationsLoaded) {
-                return ListView.separated(
-                  controller: _scrollController,
-                  itemCount: state.notifications.length +
-                      (_notificationsBloc.isNextLink ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index < state.notifications.length) {
-                      final notification = state.notifications[index];
-                      return ListTile(
-                        title: Text("$notification>>$index"),
-                      );
-                    } else if (state is NotificationsLoading) {
-                      // Add this check to display loading indicator
-                      return Center(child: CircularProgressIndicator());
-                    } else if (_notificationsBloc.offset == 0 &&
-                        state.notifications.isEmpty) {
-                      return const SizedBox();
-                    } else {
-                      return const SizedBox();
-                    }
-                  },
-                  separatorBuilder: (context, index) => const Divider(),
-                );
+                return _buildNotificationsList(state);
               } else if (state is NotificationsError) {
                 return Center(child: Text(state.message));
               } else if (state is NotificationEmpty) {
@@ -121,6 +98,30 @@ class _MyNotificationsScreenState extends State<MyNotificationsScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNotificationsList(NotificationsLoaded state) {
+    return ListView.separated(
+      controller: _scrollController,
+      itemCount:
+          state.notifications.length + (_notificationsBloc.isNextLink ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < state.notifications.length) {
+          final notification = state.notifications[index];
+          return ListTile(
+            title: Text("$notification >> $index"),
+          );
+        } else if (_notificationsBloc.isNextLink) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (_notificationsBloc.offset == 0 &&
+            state.notifications.isEmpty) {
+          return const SizedBox();
+        } else {
+          return const SizedBox();
+        }
+      },
+      separatorBuilder: (context, index) => const Divider(),
     );
   }
 }
