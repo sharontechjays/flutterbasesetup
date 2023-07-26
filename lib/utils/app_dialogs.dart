@@ -25,27 +25,32 @@ class CustomOKActionButton extends StatelessWidget {
       ),
       content: Text(message),
       actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            TextButton(
-              child: Text(positiveLabel),
-              onPressed: () {
-                positiveFunction();
-                Navigator.of(context).pop();
-              },
-            ),
-            Visibility(
-              visible: negativeLabel != "",
-              child: TextButton(
-                child: Text(negativeLabel),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: negativeLabel != ""
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.center,
+            children: <Widget>[
+              TextButton(
+                child: Text(positiveLabel),
                 onPressed: () {
-                  negativeFunction();
+                  positiveFunction();
                   Navigator.of(context).pop();
                 },
               ),
-            ),
-          ],
+              Visibility(
+                visible: negativeLabel != "",
+                child: TextButton(
+                  child: Text(negativeLabel),
+                  onPressed: () {
+                    negativeFunction();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
