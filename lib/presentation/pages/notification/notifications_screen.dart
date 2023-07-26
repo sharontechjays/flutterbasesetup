@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../utils/endless_recycler.dart';
-import '../../../utils/endless_recycler_impl.dart';
+import '../../../utils/endlessscroller/endless_recycler_impl.dart';
 import '../../blocs/notifications/notification_bloc.dart';
 import '../../blocs/notifications/notification_event.dart';
 import '../../blocs/notifications/notification_state.dart';

@@ -38,6 +38,8 @@ dependencies:
   flutter_bloc:
   equatable:
   shimmer:
+  connectivity:
+  connection_status:
 
 dev_dependencies:
   flutter_test:
